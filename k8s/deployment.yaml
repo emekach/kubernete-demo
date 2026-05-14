@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubernete-demo-api
+  labels:
+    app: kubernete-demo-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kubernete-demo-api
+  template:
+    metadata:
+      labels:
+        app: kubernete-demo-api
+    spec:
+      containers:
+        - name: kubernete-demo-api
+          image: ignisync/kubernete-demo-api:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 20
